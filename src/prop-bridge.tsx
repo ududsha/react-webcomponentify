@@ -1,7 +1,8 @@
-import ReactDOM from 'react-dom';
+// import ReactDOM from 'react-dom';
 import React from 'react';
 import { ReactDomChild } from './react-dom-child';
 import createRef from 'react-create-ref';
+import { createRoot } from 'react-dom/client';
 
 /*
 PropBridge stores props passed to it via setProps in the state.
@@ -16,17 +17,29 @@ export const renderReact2Node = (
   targetDomNode: Element | DocumentFragment,
   onRender: (ref: React.RefObject<any>) => void
 ) => {
-  class PropBridge extends React.PureComponent {
+  const propBridgeRef = createRef<PropBridge>();
+
+  interface Props {
+    callback: any;
+  }
+  class PropBridge extends React.PureComponent<Props> {
     state = { ...initialProps };
     setProps = (props: React.RefObject<PropBridge>) =>
       this.setState(() => props);
     render() {
-      return <RComponent {...this.props} {...this.state} />;
+      return (
+        <RComponent ref={this.props.callback} {...this.props} {...this.state} />
+      );
     }
   }
-  const propBridgeRef = createRef<PropBridge>();
-  ReactDOM.render(<PropBridge ref={propBridgeRef} />, targetDomNode, () =>
-    onRender(propBridgeRef)
+  const container = createRoot(targetDomNode);
+  container.render(
+    <PropBridge
+      callback={() => {
+        onRender(propBridgeRef);
+      }}
+      ref={propBridgeRef}
+    />
   );
 };
 

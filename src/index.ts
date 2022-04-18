@@ -1,5 +1,6 @@
 import React from 'react';
-import ReactDOM from "react-dom";
+import ReactDOM from 'react-dom';
+import { createRoot } from 'react-dom/client';
 import {
   renderReact2Node,
   getPropsFromNode,
@@ -82,7 +83,13 @@ const getCustomElementFromReactComponent = (
     }
     disconnectedCallback() {
       // clean up React event handlers and state
+      const { unmount } = createRoot(this.targetNode);
+      unmount();
+
+      /* 
+      // React versions < 18
       ReactDOM.unmountComponentAtNode(this.targetNode);
+      */
       this.observer.disconnect();
     }
   };
@@ -102,5 +109,5 @@ export const registerAsWebComponent = (
     component,
     mode
   );
-  customElements.define(customElementName, ReactCustomElement);
+  return customElements.define(customElementName, ReactCustomElement);
 };
